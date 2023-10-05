@@ -8,6 +8,7 @@ import org.iclass.mvc.dto.PageRequestDTO;
 
 @Mapper
 public interface CommunityMapper {
+
 	//글목록 페이징 - 검색기능으로 수정합니다.
 	List<Community> pagelist(PageRequestDTO pageRequestDTO);
 	
