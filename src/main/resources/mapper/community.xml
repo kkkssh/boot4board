@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="org.iclass.mvc.dao.CommunityMapper">
+ 	
+ 	<!-- 메인글 목록 가져오기 - 할일 : 한번에(즉 한페이지에) 글 10개씩 가져오도록 변경해야 합니다.   -->
+ 	<select id="list" resultType="Community">
+ 		SELECT * 
+ 		FROM community
+ 	</select>
+ 	
+ 	<!-- 페이지네이션(페이지 설정) 을 위한 select -->
+ 	<select id="pagelist" resultType="Community">
+ 		SELECT * FROM 
+			(SELECT rownum r ,f.* FROM
+								(SELECT * FROM community
+								          <include refid="search"></include>
+								          ORDER BY idx DESC) f)
+		WHERE r BETWEEN #{start} AND #{end}
+ 	</select>
+ 	
+ 	
+ 	<select id="count" resultType="int">
+ 		SELECT count(*) FROM community
+			<include refid="search"></include>
+ 	</select>
+ 	
+ 	
+ 	<!-- PK로 글 조회(글 읽기) -->
+ 	<select id="selectByIdx" parameterType="long" resultType="Community">
+ 		SELECT * 
+ 		FROM 
+ 			community 
+ 		WHERE 
+ 			idx=#{idx}   
+ 	</select>
+ 	
+ 	 <!--  글 조회수 증가 -->
+ 	<update id="setReadCount" parameterType="long">
+ 		UPDATE community 
+		SET 
+			READCOUNT = READCOUNT +1 
+		WHERE 
+			idx = #{idx}
+ 	</update>
+ 	
+ 	<update id="update" parameterType="Community">
+	 	UPDATE community
+		SET 
+			title=#{title}, content=#{content} ,ip=#{ip}
+		WHERE 
+			idx=#{idx}
+ 	</update>
+ 	
+ 	<delete id="delete" parameterType="long">
+ 		DELETE FROM 
+ 			community 
+ 		WHERE 
+ 			idx=#{idx}
+ 	</delete>
+ 	
+ 	<insert id="insert" parameterType="Community">
+ 		INSERT INTO 
+ 			community (idx,writer,title,content,ip)
+		VALUES 
+			(community_idx_seq.nextval,#{writer},#{title},#{content},#{ip,jdbcType=VARCHAR})
+			<!-- 매개변수가 null 을 허용하고 싶을 때 jdbcType=VARCHAR 로 타입을 알려줍니다. -->
+			<!-- 참고: insert 후에 community_idx_seq 시퀀스 값을 가져와서 idx 프로퍼티에 저장하는 태그 -->	 
+			<selectKey keyProperty="idx" resultType="long" order="AFTER">
+			<!-- community_idx_seq 시퀀스값 가져오는 sql -->
+			select community_idx_seq.currval
+			from dual
+		</selectKey>	
+ 	</insert>
+
+	<sql id="search">
+		<!-- 아래 조건에 따라 만들어진 조건식이 있을 때만 where 를 추가하는 동작 -->
+		<where>
+ 			<!-- types 파라미터가 있으면 쿼리 생성합니다.
+			types 는 배열이므로 foreach 태그로 하나씩 가져다가 if test 실행합니다.
+			types 예시는 {"t","c"}, {"t", "w", "c"}, {"t"}, {"c"} 를
+			하나씩 요소를 가져가 type 변수에 저장하고 비교 조건식에
+			따라 if 태그 안의 문자열을 추가합니다. 연결기호는 OR -->
+			<if test="types != null and types.length > 0">
+				<foreach collection="types"
+						 item="type" open="(" close=")" separator=" OR ">
+					<if test="type=='t'.toString()">title like '%' || #{keyword} || '%' </if>
+					<if test="type=='w'.toString()">writer like '%' || #{keyword} || '%' </if>
+					<if test="type=='c'.toString()">content like '%' || #{keyword} || '%' </if>
+				</foreach>
+			</if>
+ 			<!-- 만약 날짜 타입을 이용해서 기간에 대한 조회를 구현한다면 필요할 수 있으므로 추가합니다. -->
+			<if test="from != null and to != null">
+				<trim prefix="and"> <!-- 앞의 검색 조건 여부에 따라 and 추가 -->
+					dueDate between #{from} and #{to}
+				</trim>
+			</if>
+		</where>
+	</sql>
+
+ </mapper>
+ 
+ 
+ 
+ 
+ 
+ 
