@@ -9,7 +9,7 @@
  		SELECT * 
  		FROM community
  	</select>
- 	
+
  	<!-- 페이지네이션(페이지 설정) 을 위한 select -->
  	<select id="pagelist" resultType="Community">
  		SELECT * FROM 
@@ -19,14 +19,12 @@
 								          ORDER BY idx DESC) f)
 		WHERE r BETWEEN #{start} AND #{end}
  	</select>
- 	
- 	
+
  	<select id="count" resultType="int">
  		SELECT count(*) FROM community
 			<include refid="search"></include>
  	</select>
- 	
- 	
+
  	<!-- PK로 글 조회(글 읽기) -->
  	<select id="selectByIdx" parameterType="long" resultType="Community">
  		SELECT * 
@@ -35,7 +33,7 @@
  		WHERE 
  			idx=#{idx}   
  	</select>
- 	
+
  	 <!--  글 조회수 증가 -->
  	<update id="setReadCount" parameterType="long">
  		UPDATE community 

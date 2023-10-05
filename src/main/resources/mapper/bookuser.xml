@@ -12,6 +12,7 @@
  			bookuser
 		where id=#{id} and password = #{password}
  	</select>
+
  	<insert id="insert">
  		insert into 
  			bookuser

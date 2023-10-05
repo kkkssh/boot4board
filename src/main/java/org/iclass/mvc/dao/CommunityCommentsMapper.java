@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.iclass.mvc.dto.CommunityComments;
 @Mapper
 public interface CommunityCommentsMapper {
-	
 	int insert(CommunityComments vo);
 	int delete(long idx);
 	int maxOf();
