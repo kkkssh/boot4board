@@ -60,6 +60,7 @@ public class PageRequestDTO {
 
 	// Getter 는 처리 코드가 필요하여 직접 작성합니다.
 	public String getLink(){
+
 		if(link == null){
 			StringBuilder builder = new StringBuilder();
 			builder.append("page=" + this.page);
@@ -82,6 +83,6 @@ public class PageRequestDTO {
 		}
 
 		return this.link;
-		// 최종 link 는 예시) page=3&type=tc&keyword=hi&from=2023-03-01&to=2023-03-31
+		// 최종 link 는 예시 page=3&type=tc&keyword=hi&from=2023-03-01&to=2023-03-31
 	}
 }
