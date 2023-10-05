@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/basic.html}" lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>우리 북카페</title>
+	<link rel="stylesheet" th:href="@{/css/list.css}">
+</head>
+<body>
+<div layout:fragment="content" style="width: 900px;">
+	<!-- 검색 UI 추가 -->
+	<div class="row my-3">
+		<form action=""	method="get">
+			<div class="col">
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<select class="form-select"	name="type">
+							<option value="a">전체</option>
+							<!-- th:selected 의 조건식이 참이면 항목이 selected(선택됨) -->
+							<option value="t" th:selected="${pageRequestDTO.type == 't'}">제목</option>
+							<option value="c" th:selected="${pageRequestDTO.type == 'c'}">내용</option>
+							<option value="w" th:selected="${pageRequestDTO.type == 'w'}">작성자</option>
+							<option value="tw" th:selected="${pageRequestDTO.type == 'tw'}">제목+작성자</option>
+							<option value="tc" th:selected="${pageRequestDTO.type == 'tc'}">제목+내용</option>
+							<option value="tcw" th:selected="${pageRequestDTO.type == 'tcw'}">제목+내용+작성자</option>
+						</select>
+					</div>
+					<input class="form-control" name="keyword" th:value="${pageRequestDTO.keyword}">
+					<div class="input-group-append">
+						<button class="btn btn-outline-secondary searchBtn" type="submit">검색</button>
+						<button class="btn btn-outline-secondary clearBtn" type="submit">초기화</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<main class="container" id="list">
+		<h3>북챗 :: 커뮤니티</h3>
+		<p>오늘 무슨 책을 읽으셨나요? </p>
+		<hr style="color:white;">
+		<div style="margin:auto;width:900px;">
+			<ul id="main">
+				<li>
+					<ul  class="row">
+						<li>번호</li>
+						<li>제목</li>
+						<li>작성자</li>
+						<li>조회수</li>
+						<li>작성일</li>
+					</ul>
+				</li>
+				<th:block th:each="vo:${paging.list}">
+					<li>
+						<ul  class="row" th:with="link=${pageRequestDTO.link}">
+							<li>
+								[[${vo.idx}]]
+							</li>
+							<li><a th:href="|@{/community/read(idx=${vo.idx })}&${link}|" class="title">  <!-- 현재페이지 번호 전달 시작 -순서1) -->
+								[[${vo.title}]]
+							</a>
+								..<span style="color:orange;font-size: 80%;">([[${vo.commentCount}]])
+		 						</span></li>
+							<li>
+								[[${vo.writer}]]
+							</li>
+							<li>
+								[[${vo.readCount}]]
+							</li>
+							<li>
+								<!-- th:with는 c:set 와 동일한 동작. 변수값 저장 -->
+								<th:block th:with="createdAt=${#dates.format(vo.createdAt,'yyyy-MM-dd')}">
+									<!-- 오늘 이전에 작성한 글은 날짜로 표시 -->
+									<span th:if="${#strings.equals(createdAt,today)}">
+					[[${#dates.format(vo.createdAt,'HH:mm')}]]
+				</span>
+									<span th:unless="${#strings.equals(createdAt,today)}">
+					[[${#dates.format(vo.createdAt,'yyyy-MM-dd')}]]
+				</span>
+								</th:block>
+							</li>
+						</ul>
+					</li>
+					<!-- https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#dates -->
+				</th:block>
+			</ul>
+			<div style="float:right;margin:40px;">
+				<a th:onclick="|javascript:write()|" class="button">글쓰기</a>
+				<!-- 	<a th:href="@{/}" class="button" >홈</a> -->
+			</div>
+		</div>
+
+
+		<!-- 페이지 버튼을 클릭하면  url은  http://localhost:8081/...../community/list 는 동일하고
+             page 번호 파라미터만 변경됩니다.  이런 경우 앞의 부분 생략하고 ? 부터 작성.
+        -->
+		<div style="width:700px;margin: auto;padding: 10px;text-align: center;">
+			전체 글 개수 : [[${paging.totalCount }]] <br>
+			<hr>
+			<div th:with="start=${paging.startPage},last=${paging.endPage}" id="pagination">
+
+				<!-- startPage 가 1 이 아닐 때만 보여 줄 페이지 이동 : 맨앞으로 / 페이지 목록 하나 앞으로 -->
+				<span th:if="${paging.startPage!=1}">
+					<a th:href="@{/community/list(page=1)}" th:data-num="1" class="btn btn-default">&lt;&lt;</a>
+					<a th:href="@{/community/list(page=${paging.startPage -1})}" th:data-num="${paging.startPage - 1}" class="btn btn-default">&lt;</a>
+				</span>
+					<!-- start ~ last 범위값으로 반복 :
+					#numbers 는 자바 객체를 사용하는 타임리프 기능(객체) sequence(a, b) 메소드는
+					a부터 b까지 숫자 스트림(배열) 만들어서 반복문을 사용할 수 있게 합니다.
+					start, last 는 타임리프 변수이면 th:with 로 저장했습니다.-->
+					<a th:each="i:${#numbers.sequence(start,last)}"
+					   th:href="@{/community/list(page=${i})}" th:text="${i}" th:data-num="${i}"
+					   th:class="${i==pageRequestDTO.page}?'btn text-primary':'btn'"></a>
+					<!-- th:class 는 스타일 적용을 하는 기능 : 단 el 조건식 참/거짓에 따라 정하기-->
+
+				<!-- endPage 가  마지막페이지가 아닐 때만 보여 줄 페이지 이동 : 맨뒤로 / 페이지 목록 하나 뒤로 -->
+				<span th:if="${paging.endPage!=paging.totalPage}">
+					<a th:href="@{/community/list(page=${paging.endPage +1})}" th:data-num="${paging.endPage + 1}" class="btn btn-default">&gt;</a>
+					<a th:href="@{/community/list(page=${paging.totalPage})}" th:data-num="${paging.totalPage}" class="btn btn-default">&gt;&gt;</a>
+				</span>
+			</div>
+			<span class="btn"> | 현재 페이지 번호 : [[${pageRequestDTO.page}]] | </span>
+			<!-- 검색기능을 포함한 페이징을 하기 위해 th:href 를 직접 지정하지 않고 자바스크립트 이벤트 리스너로 작성 -->
+		</div>
+	</main>
+</div>
+<script layout:fragment="script" th:inline ="javascript">
+
+	document.querySelector("#pagination").addEventListener('click', e => {
+		// #pagination 안에 있는 a 태그에 클릭 이벤트를 처리하도록 합니다.
+		e.preventDefault()		// a 태그 등 pagination 안에 있는 기본 클릭 동작을 중기
+		e.stopPropagation()		// 클릭 이벤트는 자식 또는 부모 요소에 전달되는데 그것을 중지
+
+		const target = e.target
+		if (target.tagName !== 'A'){return}	// 클릭한 요소가 a 태그가 아니면 종료
+
+		// a 태그의 data-num 속성값 가져오기. data-num은 화면에 출력하지 않고 데이터를 저장
+		const num = target.getAttribute("data-num")
+
+		// 검색을 위한 추가 코드
+		const formObj = document.querySelector("form")
+		formObj.innerHTML += `<input type='hidden' name='page' value='${num}'>`
+		formObj.submit()		// form 파라미터값들 서버로 전송
+	})
+	//초기화 버튼
+	document.querySelector(".clearBtn").addEventListener('click',e => {
+		// locaion.href='/community/list'
+		self.location='/community/list'
+	})
+
+	function write() {
+		let yn
+
+		let userid = '[[${session.member}]]';
+
+		let currentPage = '[[${pageRequestDTO.page }]]' ;
+
+		if(userid === ''){
+			yn=confirm('글쓰기는 로그인이 필요합니다. 로그인 하시겠습니까?')
+			if(yn) location.href='../login?back=w'  // 로그인 후 글쓰기 url로 redirect 하기 위한 파라미터
+		}else{
+			location.href='write?page='+ currentPage
+		}
+	}
+
+	const message = [[${alert}]];
+	//객체(문자열 포함) 검사합니다. 양쪽에 '' 안에 넣으면 값이 없을떄 'null'
+
+	if(message !==null)
+		alert(message)
+	/* 기존 css : item 번호가 현재 페이지 이면 글꼴 스타일을 다르게함. */
+	/*
+    const pnums = document.querySelectorAll('.ieach');
+        pnums.forEach(function(item){
+            console.log(item);
+            if(item.innerHTML=='${paging.currentPage}') {
+                item.style.color = 'black';
+                item.style.fontWeight = 'bold';
+            }else{
+                item.style.color = '#37966f';
+            }
+        });
+    */
+</script>
+</body>
+</html>
