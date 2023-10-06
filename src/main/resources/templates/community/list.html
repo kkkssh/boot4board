@@ -85,7 +85,8 @@
 				</th:block>
 			</ul>
 			<div style="float:right;margin:40px;">
-				<a th:onclick="|javascript:write()|" class="button">글쓰기</a>
+<!--				<a th:onclick="|javascript:write()|" class="button">글쓰기</a>-->
+				<a th:href="@{/community/write}" class="button">글쓰기</a>
 				<!-- 	<a th:href="@{/}" class="button" >홈</a> -->
 			</div>
 		</div>
@@ -123,8 +124,36 @@
 			<!-- 검색기능을 포함한 페이징을 하기 위해 th:href 를 직접 지정하지 않고 자바스크립트 이벤트 리스너로 작성 -->
 		</div>
 	</main>
-</div>
+
+	<!--modal -->
+	<div class="modal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">My Board</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p id="message"></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<!--  <button type="button" class="btn btn-primary">Save changes</button>-->
+				</div>
+			</div>
+		</div>
+	</div>
+</div>  <!-- div layout:fragment="content" 끝 -->
+
 <script layout:fragment="script" th:inline ="javascript">
+
+	//수정 완료 메시지
+	const result = [[${result}]]
+	const modal = new bootstrap.Modal(document.querySelector(".modal"))     /* 부트스트랩의 모달 기능을 제공하는 객체 */
+	if(result) {        //result model 값이 전달된 것이 있으면 참
+		document.querySelector('#message').innerHTML = result
+		modal.show();
+	}
 
 	document.querySelector("#pagination").addEventListener('click', e => {
 		// #pagination 안에 있는 a 태그에 클릭 이벤트를 처리하도록 합니다.

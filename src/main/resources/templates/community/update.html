@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>My Board v1.0</title>
+</head>
+
+<div layout:fragment="content">
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Welcome! Community - 수정 [[${dto.idx}]] 번
+                </div>
+                <div class="card-body">     <!-- community.xml 에서 update db 확인 후 넣어야 할 데이터 확인 -->
+                    <form action="/community/update" method="post">
+                        <input type="hidden" name="idx" th:value="${dto.idx}">
+                        <input type="hidden" th:value="${#httpServletRequest.remoteAddr}" name="ip">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">제목</span>
+                            <input name="title" class="form-control" th:value="${dto.title}">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">내용</span>
+                            <textarea name="content" class="form-control" rows="15" style="resize: none;">[[${dto.content}]]</textarea>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">작성자</span>
+                            <input name="writer" class="form-control" th:value="${dto.writer}" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">작성날짜</span>
+                            <input name="writer" class="form-control" th:value="${#dates.format(dto.createdAt,'yyyy-MM-dd')}" readonly>
+                        </div>
+                        <div class="my-4" th:with="link=${pageRequestDTO.link}">
+                            <div class="float-end">
+                                    <button type="button" class="btn btn-primary listBtn">목록</button>
+                                    <button type="button" class="btn btn-secondary modBtn">저장</button>
+                                    <button type="button" class="btn btn-danger removeBtn">삭제</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--modal -->
+    <div class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">My Board</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="message"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!--  <button type="button" class="btn btn-primary">Save changes</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script layout:fragment="script" th:inline="javascript">
+    const errors =[[${errors}]]
+    console.log(errors)
+    let errorMsg ='오류<br>'
+    if(errors) {
+       // document.forms[0].title.value=[[${title}]]           //잘못된 입력값을 남겨서 보여주고 싶다면...
+       // document.forms[0].content.innerHTML=[[${content}]]    //잘못된 입력값을 남겨서 보여주고 싶다면...
+        for(let i=0;i<errors.length;i++){
+            errorMsg+=`${errors[i].field} 는(은) ${errors[i].defaultMessage} <br>`
+        }
+        // alert(errorMsg)
+        document.querySelector('#message').innerHTML=errorMsg
+        const modal = new bootstrap.Modal(document.querySelector(".modal"))
+        modal.show();
+    }
+    const link = [[${pageRequestDTO.getLink()}]]
+    console.log(link)
+    const formObj = document.forms[0]
+    document.querySelector(".modBtn").addEventListener('click',e => {
+        e.preventDefault();
+        e.stopPropagation();
+        formObj.action = `/community/update?${link}`
+        formObj.submit()
+    },false)
+
+    document.querySelector(".listBtn").addEventListener('click',e=>{
+        location.href=`/community/list?${link}`
+    })
+
+    document.querySelector(".removeBtn").addEventListener('click',e => {
+        e.preventDefault();
+        e.stopPropagation();
+        formObj.action = `/community/delete?${link}`
+        formObj.submit()
+    },false)
+</script>
+</html>
+<!---Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true-->

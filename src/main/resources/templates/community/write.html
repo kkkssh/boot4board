@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>My Board v1.0</title>
+</head>
+
+<div layout:fragment="content">
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Welcome! Community - 글쓰기
+                </div>
+                <div class="card-body">
+                    <form action="/community/write" method="post">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">제목</span>
+                            <input name="title" class="form-control" placeholder="제목을 입력하세요." >
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">내용</span>
+                            <textarea name="content" class="form-control" rows="15" style="resize: none;" placeholder="내용을 입력하세요."></textarea>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">작성자</span>
+                            <input name="writer" class="form-control" placeholder="작성자를 입력하세요." >
+                        </div>
+                        <div class="my-4">
+                            <div class="float-end">
+                                <button type="submit" class="btn btn-primary">제출</button>
+                                <button type="reset" class="btn btn-secondary">다시쓰기</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--modal -->
+    <div class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">My Board</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="message"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!--  <button type="button" class="btn btn-primary">Save changes</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script" th:inline="javascript">
+    const errors =[[${errors}]]
+    console.log(errors)
+    let errorMsg ='오류<br>'
+    if(errors) {
+        for(let i=0;i<errors.length;i++){
+            errorMsg+=`${errors[i].field} 는(은) ${errors[i].defaultMessage} <br>`
+        }
+        // alert(errorMsg)
+        document.querySelector('#message').innerHTML=errorMsg
+        const modal = new bootstrap.Modal(document.querySelector(".modal"))
+        modal.show();
+    }
+
+
+
+</script>
+</html>

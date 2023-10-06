@@ -24,7 +24,7 @@ class CommunityServiceTest {
     void pagelist() {
         // 아래 dto는 Controller 를 사용하면 직접 받을 수 있으므로 생성자로 값 설정은 테스트용입니다.
         // PageRequestDTO dto = new PageRequestDTO(1, 0, 0, 0, new String[]{"t","c"}, null, "회원", null, null);
-        PageRequestDTO dto = new PageRequestDTO(1, 0, 0, 0, null, "tcw", "공지", null, null);   // view 에서 받는 type
+        PageRequestDTO dto = new PageRequestDTO(1, 0, 0, 0, null, "tcw", "공지", null, null, null);   // view 에서 받는 type
         List<Community> list = service.pagelist(dto);
         list.forEach(i -> {
             log.info(">>>> 글 : {}", i);

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>My Board v1.0</title>
+</head>
+<!-- 부트스트랩 css : 교재와  동일한 양식-->
+<!-- 타임리프 유틸리티 : java 클래스를 사용하도록 제공.각각 객체에 맞는 메소드를 갖고 있으며 그것을 잘 활용해 봅시다.
+                 #strings(String클래스) , #numbers , #dates (Date,Timestamp 클래스)
+                 #temporals 는 LocalDate, LocalDateTime클래스를 다룹니다.
+-->
+<div layout:fragment="content">
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Welcome! Community - Read [[${dto.idx}]] 번
+                </div>
+                <div class="card-body">
+                    <form action="" method="post">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">제목</span>
+                            <input name="title" class="form-control" th:value="${dto.title}" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">내용</span>
+                            <textarea name="content" class="form-control" rows="15" style="resize: none;" readonly>[[${dto.content}]]</textarea>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">작성자</span>
+                            <input name="writer" class="form-control" th:value="${dto.writer}" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text col-2">작성날짜</span>
+                            <input name="createdAt" class="form-control" th:value="${#dates.format(dto.createdAt,'yyyy-MM-dd')}" readonly>
+                        </div>
+                        <div class="my-4" th:with="link=${pageRequestDTO.link}">
+                            <!-- link 예시 : page=3&type=tc&keyword=hi   를 전달 받아 목록과 수정 클릭시 파라미터를 추가시킵니다.-->
+                            <div class="float-end">
+                                <a th:href="|@{/community/list}?${link}|" class="text-decoration-none">
+                                    <!-- href="/community/list?page=3&type=tc&keyword=hi"  로 만들어집니다.-->
+                                    <button type="button" class="btn btn-primary">목록</button>
+                                </a>
+                                <a th:href="|@{/community/update(idx=${dto.idx})}&${link}|" class="text-decoration-none">
+                                    <!-- href="/community/update?idx=999&page=3&type=tc&keyword=hi"  로 만들어집니다.-->
+                                    <button type="button" class="btn btn-secondary">수정</button>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>  <!-- div class="row mt-3" 끝 -->
+
+    <!--modal -->
+    <div class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">My Board</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="message"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!--  <button type="button" class="btn btn-primary">Save changes</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>  <!-- div layout:fragment="content" 끝 -->
+<script layout:fragment="script" th:inline="javascript">
+    //수정 완료 메시지
+    const result = [[${result}]]
+    const modal = new bootstrap.Modal(document.querySelector(".modal"))     /* 부트스트랩의 모달 기능을 제공하는 객체 */
+    if(result) {        //result model 값이 전달된 것이 있으면 참
+        document.querySelector('#message').innerHTML = result
+        modal.show();
+    }
+
+</script>
+</html>
